@@ -97,7 +97,8 @@ cherrypick () {
 }
 
 external_git () {
-	git_tag=""
+	git_patchset="https://source.codeaurora.org/external/imx/linux-imx"
+	git_tag="imx_4.9.123_imx8mm_ga"
 	echo "pulling: ${git_tag}"
 	${git_bin} pull --no-edit ${git_patchset} ${git_tag}
 	${git_bin} describe
@@ -255,7 +256,7 @@ local_patch () {
 	${git} "${DIR}/patches/dir/0001-patch.patch"
 }
 
-#external_git
+external_git
 #aufs4
 #rt
 #wireguard
@@ -356,5 +357,5 @@ packaging () {
 	fi
 }
 
-packaging
+#packaging
 echo "patch.sh ran successfully"
