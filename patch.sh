@@ -332,6 +332,34 @@ reverts () {
 	fi
 }
 
+imx8mq_emmc_wifi () {
+	echo "dir: imx8mq_emmc_wifi"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		cp arch/arm64/boot/dts/freescale/fsl-imx8mq-evk.dts  arch/arm64/boot/dts/freescale/fsl-imx8mq-evk-emmc.dts
+		sed -i -e 's:fsl-imx8mq-evk.dtb \\:fsl-imx8mq-evk.dtb \\\n\t\t\t\t fsl-imx8mq-evk-emmc.dtb \\:g' arch/arm64/boot/dts/freescale/Makefile
+
+		${git_bin} add arch/arm64/boot/dts/freescale/fsl-imx8mq-evk-emmc.dts
+		${git_bin} commit -a -m 'setup: fsl-imx8mq-evk-emmc' -s
+		${git_bin} format-patch -1 -o ../patches/imx8mq_emmc_wifi/
+
+		${git_bin} reset --hard HEAD^
+
+		start_cleanup
+
+		${git} "${DIR}/patches/imx8mq_emmc_wifi/0001-setup-fsl-imx8mq-evk-emmc.patch"
+
+		wdir="imx8mq_emmc_wifi"
+		number=1
+		cleanup
+	fi
+
+	${git} "${DIR}/patches/imx8mq_emmc_wifi/0001-setup-fsl-imx8mq-evk-emmc.patch"
+	${git} "${DIR}/patches/imx8mq_emmc_wifi/0002-fsl-imx8mq-evk-emmc.dts-wip.patch"
+}
+
+imx8mq_emmc_wifi
+
 #drivers () {
 #}
 

@@ -1,0 +1,42 @@
+From 78022952fec34b13cb4c989e84b2fb2ff2152787 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 6 Dec 2018 14:59:49 -0600
+Subject: [PATCH 2/2] fsl-imx8mq-evk-emmc.dts: wip
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm64/boot/dts/freescale/fsl-imx8mq-evk-emmc.dts | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-imx8mq-evk-emmc.dts b/arch/arm64/boot/dts/freescale/fsl-imx8mq-evk-emmc.dts
+index 95d78a2dfbde..1dc768c64f69 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-imx8mq-evk-emmc.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-imx8mq-evk-emmc.dts
+@@ -20,11 +20,11 @@
+ 	model = "Freescale i.MX8MQ EVK";
+ 	compatible = "fsl,imx8mq-evk", "fsl,imx8mq";
+ 
+-	bcmdhd_wlan_0: bcmdhd_wlan@0 {
+-		compatible = "android,bcmdhd_wlan";
+-		bcmdhd_fw = "/lib/firmware/bcm/1CX_BCM4356/fw_bcmdhd.bin";
+-		bcmdhd_nv = "/lib/firmware/bcm/1CX_BCM4356/bcmdhd.cal";
+-	};
++	//bcmdhd_wlan_0: bcmdhd_wlan@0 {
++	//	compatible = "android,bcmdhd_wlan";
++	//	bcmdhd_fw = "/lib/firmware/bcm/1CX_BCM4356/fw_bcmdhd.bin";
++	//	bcmdhd_nv = "/lib/firmware/bcm/1CX_BCM4356/bcmdhd.cal";
++	//};
+ 
+ 	chosen {
+ 		bootargs = "console=ttymxc0,115200 earlycon=ec_imx6q,0x30860000,115200";
+@@ -711,6 +711,7 @@
+ 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
+ 	bus-width = <4>;
+ 	cd-gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
++	no-1-8-v;
+ 	vmmc-supply = <&reg_usdhc2_vmmc>;
+ 	status = "okay";
+ };
+-- 
+2.19.2
+

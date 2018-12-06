@@ -142,6 +142,11 @@ mmc_write_boot () {
 		sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
 		sync
 		sudo cp -v "${location}/dtbs/freescale/fsl-imx8mq-evk.dtb" "${location}/fsl-imx8mq-evk.dtb"
+		sudo cp -v "${location}/dtbs/freescale/fsl-imx8mq-evk-emmc.dtb" "${location}/fsl-imx8mq-evk-emmc.dtb"
+
+		if [ -d "${location}/dtbs" ] ; then
+			sudo rm -rf "${location}/dtbs" || true
+		fi
 	fi
 }
 
