@@ -23,6 +23,12 @@
 unset KERNEL_UTS
 unset MMC
 
+#arch=arm
+#kernel_image="zImage"
+
+arch=arm64
+kernel_image="Image"
+
 DIR=$PWD
 
 . "${DIR}/version.sh"
@@ -58,7 +64,7 @@ mmc_write_boot_pre () {
 		sudo mv "${location}/vmlinuz-${KERNEL_UTS}" "${location}/vmlinuz-${KERNEL_UTS}_bak"
 	fi
 
-	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/vmlinuz-${KERNEL_UTS}"
+	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.${kernel_image}" "${location}/vmlinuz-${KERNEL_UTS}"
 
 	if [ -f "${location}/initrd.img-${KERNEL_UTS}" ] ; then
 		sudo rm -rf "${location}/initrd.img-${KERNEL_UTS}" || true
@@ -111,22 +117,18 @@ mmc_write_boot_extlinux () {
 }
 
 mmc_write_boot () {
-	if [ ! -f "${location}/zImage" ] ; then
-		echo "Error: no current ${location}/zImage, this might not boot..."
+	if [ ! -f "${location}/${kernel_image}" ] ; then
+		echo "Error: no current ${location}/${kernel_image}, this might not boot..."
 	fi
 
 	echo "Installing ${KERNEL_UTS} to ${partition}"
 
-	if [ -f "${location}/zImage_bak" ] ; then
-		sudo rm -f "${location}/zImage_bak" || true
+	if [ -f "${location}/${kernel_image}_bak" ] ; then
+		sudo rm -f "${location}/${kernel_image}_bak" || true
 	fi
 
-	if [ -f "${location}/zImage" ] ; then
-		sudo mv "${location}/zImage" "${location}/zImage_bak"
-	fi
-
-	#Assuming boot via zImage on first partition...
-	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/zImage"
+	#Assuming boot via Image on first partition...
+	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.${kernel_image}" "${location}/${kernel_image}"
 
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
 
@@ -139,6 +141,7 @@ mmc_write_boot () {
 		echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
 		sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
 		sync
+		sudo cp -v "${location}/dtbs/freescale/fsl-imx8mq-evk.dtb" "${location}/fsl-imx8mq-evk.dtb"
 	fi
 }
 
@@ -146,6 +149,13 @@ mmc_partition_discover () {
 	boot_written="false"
 	if [ -f "${DIR}/deploy/disk/uEnv.txt" ] ; then
 		echo "found: /uEnv.txt"
+		location="${DIR}/deploy/disk"
+		mmc_write_boot
+		boot_written="true"
+	fi
+
+	if [ -f "${DIR}/deploy/disk/.imx8mq-evk" ] ; then
+		echo "found: /.imx8mq-evk"
 		location="${DIR}/deploy/disk"
 		mmc_write_boot
 		boot_written="true"
@@ -302,7 +312,7 @@ check_mmc () {
 if [ -f "${DIR}/system.sh" ] ; then
 	. "${DIR}/system.sh"
 
-	if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
+	if [ -f "${DIR}/KERNEL/arch/${arch}/boot/${kernel_image}" ] ; then
 		KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
 		if [ "x${MMC}" = "x" ] ; then
 			echo "-----------------------------"
@@ -317,7 +327,7 @@ if [ -f "${DIR}/system.sh" ] ; then
 			sync
 		fi
 	else
-		echo "ERROR: arch/arm/boot/zImage not found, Please run build_kernel.sh before running this script..."
+		echo "ERROR: arch/${arch}/boot/${kernel_image} not found, Please run build_kernel.sh before running this script..."
 	fi
 else
 	echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
