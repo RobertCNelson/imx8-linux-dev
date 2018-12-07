@@ -372,6 +372,8 @@ imx8mq_emmc_wifi
 #drivers
 #soc
 
+dir 'mainline'
+
 packaging () {
 	echo "dir: packaging"
 	#regenerate="enable"
