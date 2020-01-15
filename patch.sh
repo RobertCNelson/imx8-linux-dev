@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2018 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2019 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -188,7 +188,6 @@ rt_cleanup () {
 }
 
 rt () {
-	echo "dir: rt"
 	rt_patch="${KERNEL_REL}${kernel_rt}"
 
 	#v4.19.x
@@ -201,13 +200,14 @@ rt () {
 		rm -f patch-${rt_patch}.patch.xz
 		rm -f localversion-rt
 		${git_bin} add .
-		${git_bin} commit -a -m 'merge: CONFIG_PREEMPT_RT Patch Set' -s
+		${git_bin} commit -a -m 'merge: CONFIG_PREEMPT_RT Patch Set' -m "patch-${rt_patch}.patch.xz" -s
 		${git_bin} format-patch -1 -o ../patches/rt/
+		echo "RT: patch-${rt_patch}.patch.xz" > ../patches/git/RT
 
 		exit 2
 	fi
 
-	${git} "${DIR}/patches/rt/0001-merge-CONFIG_PREEMPT_RT-Patch-Set.patch"
+	dir 'rt'
 }
 
 wireguard_fail () {
@@ -216,23 +216,34 @@ wireguard_fail () {
 }
 
 wireguard () {
-	echo "dir: WireGuard"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
 		if [ ! -d ./WireGuard ] ; then
 			${git_bin} clone https://git.zx2c4.com/WireGuard --depth=1
+			cd ./WireGuard
+				wireguard_hash=$(git rev-parse HEAD)
+			cd -
 		else
 			rm -rf ./WireGuard || true
 			${git_bin} clone https://git.zx2c4.com/WireGuard --depth=1
+			cd ./WireGuard
+				wireguard_hash=$(git rev-parse HEAD)
+			cd -
 		fi
+
+		#cd ./WireGuard/
+		#${git_bin}  revert --no-edit xyz
+		#cd ../
+
 		cd ./KERNEL/
 
 		../WireGuard/contrib/kernel-tree/create-patch.sh | patch -p1 || wireguard_fail
 
 		${git_bin} add .
-		${git_bin} commit -a -m 'merge: WireGuard' -s
+		${git_bin} commit -a -m 'merge: WireGuard' -m "https://git.zx2c4.com/WireGuard/commit/${wireguard_hash}" -s
 		${git_bin} format-patch -1 -o ../patches/WireGuard/
+		echo "WIREGUARD: https://git.zx2c4.com/WireGuard/commit/${wireguard_hash}" > ../patches/git/WIREGUARD
 
 		rm -rf ../WireGuard/ || true
 
@@ -247,7 +258,7 @@ wireguard () {
 		cleanup
 	fi
 
-	${git} "${DIR}/patches/WireGuard/0001-merge-WireGuard.patch"
+	dir 'WireGuard'
 }
 
 local_patch () {
@@ -282,7 +293,7 @@ post_backports () {
 	fi
 
 	${git_bin} add .
-	${git_bin} commit -a -m "backports: ${subsystem}: from: linux.git" -s
+	${git_bin} commit -a -m "backports: ${subsystem}: from: linux.git" -m "Reference: ${backport_tag}" -s
 	if [ ! -d ../patches/backports/${subsystem}/ ] ; then
 		mkdir -p ../patches/backports/${subsystem}/
 	fi

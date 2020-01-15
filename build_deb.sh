@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2017 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2019 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -86,11 +86,11 @@ make_deb () {
 	echo "-----------------------------"
 	make ${build_opts} CROSS_COMPILE="${CC}" bindeb-pkg
 
-	mv "${DIR}"/*.deb "${DIR}/deploy/" || true
 	mv "${DIR}"/*.debian.tar.gz "${DIR}/deploy/" || true
 	mv "${DIR}"/*.dsc "${DIR}/deploy/" || true
 	mv "${DIR}"/*.changes "${DIR}/deploy/" || true
 	mv "${DIR}"/*.orig.tar.gz "${DIR}/deploy/" || true
+	mv "${DIR}"/*.deb "${DIR}/deploy/" || true
 
 	KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
 
