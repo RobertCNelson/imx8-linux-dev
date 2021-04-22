@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2019 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2021 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -104,82 +104,87 @@ external_git () {
 }
 
 aufs_fail () {
-	echo "aufs4 failed"
+	echo "aufs failed"
 	exit 2
 }
 
-aufs4 () {
-	echo "dir: aufs4"
+aufs () {
+	aufs_prefix="aufs4-"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-kbuild.patch
-		patch -p1 < aufs4-kbuild.patch || aufs_fail
-		rm -rf aufs4-kbuild.patch
+		KERNEL_REL=4.19.63+
+		wget https://raw.githubusercontent.com/sfjro/${aufs_prefix}standalone/aufs${KERNEL_REL}/${aufs_prefix}kbuild.patch
+		patch -p1 < ${aufs_prefix}kbuild.patch || aufs_fail
+		rm -rf ${aufs_prefix}kbuild.patch
 		${git_bin} add .
-		${git_bin} commit -a -m 'merge: aufs4-kbuild' -s
+		${git_bin} commit -a -m 'merge: aufs-kbuild' -s
 
-		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-base.patch
-		patch -p1 < aufs4-base.patch || aufs_fail
-		rm -rf aufs4-base.patch
+		wget https://raw.githubusercontent.com/sfjro/${aufs_prefix}standalone/aufs${KERNEL_REL}/${aufs_prefix}base.patch
+		patch -p1 < ${aufs_prefix}base.patch || aufs_fail
+		rm -rf ${aufs_prefix}base.patch
 		${git_bin} add .
-		${git_bin} commit -a -m 'merge: aufs4-base' -s
+		${git_bin} commit -a -m 'merge: aufs-base' -s
 
-		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-mmap.patch
-		patch -p1 < aufs4-mmap.patch || aufs_fail
-		rm -rf aufs4-mmap.patch
+		wget https://raw.githubusercontent.com/sfjro/${aufs_prefix}standalone/aufs${KERNEL_REL}/${aufs_prefix}mmap.patch
+		patch -p1 < ${aufs_prefix}mmap.patch || aufs_fail
+		rm -rf ${aufs_prefix}mmap.patch
 		${git_bin} add .
-		${git_bin} commit -a -m 'merge: aufs4-mmap' -s
+		${git_bin} commit -a -m 'merge: aufs-mmap' -s
 
-		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-standalone.patch
-		patch -p1 < aufs4-standalone.patch || aufs_fail
-		rm -rf aufs4-standalone.patch
+		wget https://raw.githubusercontent.com/sfjro/${aufs_prefix}standalone/aufs${KERNEL_REL}/${aufs_prefix}standalone.patch
+		patch -p1 < ${aufs_prefix}standalone.patch || aufs_fail
+		rm -rf ${aufs_prefix}standalone.patch
 		${git_bin} add .
-		${git_bin} commit -a -m 'merge: aufs4-standalone' -s
+		${git_bin} commit -a -m 'merge: aufs-standalone' -s
 
-		${git_bin} format-patch -4 -o ../patches/aufs4/
+		${git_bin} format-patch -4 -o ../patches/aufs/
 
 		cd ../
-		if [ ! -d ./aufs4-standalone ] ; then
-			${git_bin} clone -b aufs${KERNEL_REL} https://github.com/sfjro/aufs4-standalone --depth=1
+		if [ ! -d ./${aufs_prefix}standalone ] ; then
+			${git_bin} clone -b aufs${KERNEL_REL} https://github.com/sfjro/${aufs_prefix}standalone --depth=1
+			cd ./${aufs_prefix}standalone/
+				aufs_hash=$(git rev-parse HEAD)
+			cd -
 		else
-			rm -rf ./aufs4-standalone || true
-			${git_bin} clone -b aufs${KERNEL_REL} https://github.com/sfjro/aufs4-standalone --depth=1
+			rm -rf ./${aufs_prefix}standalone || true
+			${git_bin} clone -b aufs${KERNEL_REL} https://github.com/sfjro/${aufs_prefix}standalone --depth=1
+			cd ./${aufs_prefix}standalone/
+				aufs_hash=$(git rev-parse HEAD)
+			cd -
 		fi
 		cd ./KERNEL/
+		KERNEL_REL=4.19
 
-		cp -v ../aufs4-standalone/Documentation/ABI/testing/*aufs ./Documentation/ABI/testing/
+		cp -v ../${aufs_prefix}standalone/Documentation/ABI/testing/*aufs ./Documentation/ABI/testing/
 		mkdir -p ./Documentation/filesystems/aufs/
-		cp -rv ../aufs4-standalone/Documentation/filesystems/aufs/* ./Documentation/filesystems/aufs/
+		cp -rv ../${aufs_prefix}standalone/Documentation/filesystems/aufs/* ./Documentation/filesystems/aufs/
 		mkdir -p ./fs/aufs/
-		cp -v ../aufs4-standalone/fs/aufs/* ./fs/aufs/
-		cp -v ../aufs4-standalone/include/uapi/linux/aufs_type.h ./include/uapi/linux/
+		cp -v ../${aufs_prefix}standalone/fs/aufs/* ./fs/aufs/
+		cp -v ../${aufs_prefix}standalone/include/uapi/linux/aufs_type.h ./include/uapi/linux/
 
 		${git_bin} add .
-		${git_bin} commit -a -m 'merge: aufs4' -s
-		${git_bin} format-patch -5 -o ../patches/aufs4/
+		${git_bin} commit -a -m 'merge: aufs' -m "https://github.com/sfjro/${aufs_prefix}standalone/commit/${aufs_hash}" -s
+		${git_bin} format-patch -5 -o ../patches/aufs/
+		echo "AUFS: https://github.com/sfjro/${aufs_prefix}standalone/commit/${aufs_hash}" > ../patches/git/AUFS
 
-		rm -rf ../aufs4-standalone/ || true
+		rm -rf ../${aufs_prefix}standalone/ || true
 
 		${git_bin} reset --hard HEAD~5
 
 		start_cleanup
 
-		${git} "${DIR}/patches/aufs4/0001-merge-aufs4-kbuild.patch"
-		${git} "${DIR}/patches/aufs4/0002-merge-aufs4-base.patch"
-		${git} "${DIR}/patches/aufs4/0003-merge-aufs4-mmap.patch"
-		${git} "${DIR}/patches/aufs4/0004-merge-aufs4-standalone.patch"
-		${git} "${DIR}/patches/aufs4/0005-merge-aufs4.patch"
+		${git} "${DIR}/patches/aufs/0001-merge-aufs-kbuild.patch"
+		${git} "${DIR}/patches/aufs/0002-merge-aufs-base.patch"
+		${git} "${DIR}/patches/aufs/0003-merge-aufs-mmap.patch"
+		${git} "${DIR}/patches/aufs/0004-merge-aufs-standalone.patch"
+		${git} "${DIR}/patches/aufs/0005-merge-aufs.patch"
 
-		wdir="aufs4"
+		wdir="aufs"
 		number=5
 		cleanup
 	fi
 
-	${git} "${DIR}/patches/aufs4/0001-merge-aufs4-kbuild.patch"
-	${git} "${DIR}/patches/aufs4/0002-merge-aufs4-base.patch"
-	${git} "${DIR}/patches/aufs4/0003-merge-aufs4-mmap.patch"
-	${git} "${DIR}/patches/aufs4/0004-merge-aufs4-standalone.patch"
-	${git} "${DIR}/patches/aufs4/0005-merge-aufs4.patch"
+	dir 'aufs'
 }
 
 rt_cleanup () {
@@ -190,12 +195,11 @@ rt_cleanup () {
 rt () {
 	rt_patch="${KERNEL_REL}${kernel_rt}"
 
-	#v4.19.x
 	#${git_bin} revert --no-edit xyz
 
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		wget -c https://www.kernel.org/pub/linux/kernel/projects/rt/${KERNEL_REL}/patch-${rt_patch}.patch.xz
+		wget -c https://www.kernel.org/pub/linux/kernel/projects/rt/${KERNEL_REL}/older/patch-${rt_patch}.patch.xz
 		xzcat patch-${rt_patch}.patch.xz | patch -p1 || rt_cleanup
 		rm -f patch-${rt_patch}.patch.xz
 		rm -f localversion-rt
@@ -267,7 +271,7 @@ local_patch () {
 }
 
 #external_git
-#aufs4
+#aufs
 #rt
 #wireguard
 #local_patch
@@ -324,7 +328,6 @@ backports () {
 }
 
 reverts () {
-	echo "dir: reverts"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
@@ -333,7 +336,7 @@ reverts () {
 	## notes
 	##git revert --no-edit xyz -s
 
-	#${git} "${DIR}/patches/reverts/0001-Revert-xyz.patch"
+	dir 'reverts'
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="reverts"
@@ -355,17 +358,26 @@ reverts () {
 #soc
 
 packaging () {
-	echo "dir: packaging"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cp -v "${DIR}/3rdparty/packaging/builddeb" "${DIR}/KERNEL/scripts/package"
-		${git_bin} commit -a -m 'packaging: sync builddeb changes' -s
-		${git_bin} format-patch -1 -o "${DIR}/patches/packaging"
-		exit 2
-	else
-		${git} "${DIR}/patches/packaging/0001-packaging-sync-builddeb-changes.patch"
+	do_backport="enable"
+	if [ "x${do_backport}" = "xenable" ] ; then
+		backport_tag="v5.2.21"
+
+		subsystem="bindeb-pkg"
+		#regenerate="enable"
+		if [ "x${regenerate}" = "xenable" ] ; then
+			pre_backports
+
+			cp -v ~/linux-src/scripts/package/* ./scripts/package/
+
+			post_backports
+			exit 2
+		else
+			patch_backports
+		fi
 	fi
+
+	${git} "${DIR}/patches/backports/bindeb-pkg/0002-builddeb-Install-our-dtbs-under-boot-dtbs-version.patch"
 }
 
-packaging
+#packaging
 echo "patch.sh ran successfully"
