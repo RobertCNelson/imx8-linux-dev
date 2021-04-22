@@ -97,7 +97,8 @@ cherrypick () {
 }
 
 external_git () {
-	git_tag=""
+	git_patchset="https://source.codeaurora.org/external/imx/linux-imx"
+	git_tag="imx_4.19.35_1.1.0"
 	echo "pulling: ${git_tag}"
 	${git_bin} pull --no-edit ${git_patchset} ${git_tag}
 	${git_bin} describe
@@ -270,7 +271,7 @@ local_patch () {
 	${git} "${DIR}/patches/dir/0001-patch.patch"
 }
 
-#external_git
+external_git
 #aufs
 #rt
 #wireguard
@@ -356,6 +357,8 @@ reverts () {
 #reverts
 #drivers
 #soc
+
+dir 'fixes'
 
 packaging () {
 	do_backport="enable"
