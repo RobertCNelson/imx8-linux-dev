@@ -98,7 +98,7 @@ cherrypick () {
 
 external_git () {
 	git_patchset="https://source.codeaurora.org/external/imx/linux-imx"
-	git_tag="imx_4.14.98_2.0.0_ga"
+	git_tag="imx_4.14.98_2.3.0"
 	echo "pulling: ${git_tag}"
 	${git_bin} pull --no-edit ${git_patchset} ${git_tag}
 	${git_bin} describe
