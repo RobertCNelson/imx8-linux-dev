@@ -98,7 +98,7 @@ cherrypick () {
 
 external_git () {
 	git_patchset="https://source.codeaurora.org/external/imx/linux-imx"
-	git_tag="imx_4.14.62_1.0.0_beta"
+	git_tag="imx_4.14.78_1.0.0_ga"
 	echo "pulling: ${git_tag}"
 	${git_bin} pull --no-edit ${git_patchset} ${git_tag}
 	${git_bin} describe
@@ -372,7 +372,7 @@ imx8mq_emmc_wifi () {
 	${git} "${DIR}/patches/imx8mq_emmc_wifi/0002-fsl-imx8mq-evk-emmc.dts-wip.patch"
 }
 
-imx8mq_emmc_wifi
+#imx8mq_emmc_wifi
 
 #drivers () {
 #}
@@ -386,7 +386,7 @@ imx8mq_emmc_wifi
 #drivers
 #soc
 
-dir 'mainline'
+#dir 'mainline'
 dir 'fixes'
 
 packaging () {
