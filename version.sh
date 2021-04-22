@@ -2,7 +2,7 @@
 #
 ARCH=$(uname -m)
 
-config="defconfig"
+config="imx_v8_defconfig"
 
 build_prefix="-imx8-x"
 branch_prefix="v"
@@ -44,8 +44,8 @@ toolchain="gcc_arm_aarch64_gnu_8"
 #toolchain="gcc_10_riscv64"
 
 #Kernel
-KERNEL_REL=4.19
-KERNEL_TAG=${KERNEL_REL}.35
+KERNEL_REL=5.4
+KERNEL_TAG=${KERNEL_REL}.70
 kernel_rt=".X-rtY"
 #Kernel Build
 BUILD=${build_prefix}0
